@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- Добавляем файл с данными (чтобы не запускать сервер, вместо JSON используем обычный объект JS) -->
+  <script src="data.js"></script>
+</head>
+
+<body>
+  <form name="main">
+    <!-- Динамические данные из JSON -->
+    <input type="text" name="name" placeholder="Имя" data-id="f1">
+    <input type="text" name="age" placeholder="Возраст" data-id="f2">
+    <input type="text" name="status" placeholder="Статус" data-id="f3">
+    <!-- и так далее -->
+
+    <!-- Статические данные -->
+    <input type="text" name="gender" value="мужской" placeholder="Пол" data-id="f99">
+    <!-- и так далее -->
+
+    <!-- Место под ссылки -->
+    <div id="links-container"></div>
+  </form>
+
+  <script>
+    fillDynamicData(data); // заполняем динамические input-ы
+    generateAndShowLinks(formIds); // генерируем ссылки и показываем на странице
+
+    function fillDynamicData(data) {
+      Object.entries(data).forEach(([key, value]) => {
+        document.querySelector(`input[name="${key}"]`).value = value;
+      });
+    }
+
+    function generateAndShowLinks(formIds) {
+      let links = '';
+
+      formIds.forEach(({ id, title }) => {
+        const fullUrl = getUrlWithParams(id); // получаем полный URL с параметрами
+        
+        links += `<a href="${fullUrl}" target="_blank">${title}</a>`;
+      });
+
+      // добавляем полученные ссылки в документ
+      document.getElementById('links-container').innerHTML = links;
+    }
+
+    function getUrlWithParams(id) {
+      const fullUrl = new URL(BASE_URL); // создаем объект URL (удобней добавлять get-параметры)
+      const form = document.forms.main; // получаем форму, инпуты которой будем обрабатывать
+      
+      fullUrl.hash = id; // добавляем хэш часть (#uf899543 и т.п.)
+      
+      // Итерируемся по инпутам формы
+      [...form.elements].forEach(input => {
+        // и добавляем их data-id и value в итоговый URL
+        fullUrl.searchParams.append(input.dataset.id, input.value);
+      });
+
+      return fullUrl;
+    }
+  </script>
+</body>
+
+</html>
